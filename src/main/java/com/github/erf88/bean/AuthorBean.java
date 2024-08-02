@@ -18,6 +18,10 @@ public class AuthorBean {
 	public Author getAuthor() {
 		return author;
 	}
+	
+	public void setAuthor(Author author) {
+		this.author = author;
+	}
 
 	public Integer getAuthorId() {
 		return authorId;

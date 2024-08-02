@@ -21,13 +21,18 @@ public class BookBean {
 	private Book book = new Book();
 	private Integer bookId;
 	private Integer authorId;
+	private List<Book> books;
 
 	public Book getBook() {
 		return book;
 	}
 	
 	public List<Book> getBooks() {
-		return new DAO<Book>(Book.class).findAll();
+		DAO<Book> dao = new DAO<Book>(Book.class);
+		if(this.books == null) {
+			this.books = dao.findAll();
+		}
+		return books;
 	}
 	
 	public Integer getBookId() {
@@ -71,10 +76,12 @@ public class BookBean {
 			return;
 		}
 
+		DAO<Book> dao = new DAO<Book>(Book.class);
 		if(this.book.getId() == null) {
-			new DAO<Book>(Book.class).save(this.book);
+			dao.save(this.book);
+			this.books = dao.findAll();
 		} else {
-			new DAO<Book>(Book.class).update(this.book);
+			dao.update(this.book);
 		}
 		
 		this.book = new Book();
