@@ -2,22 +2,35 @@ package com.github.erf88.bean;
 
 import com.github.erf88.model.Author;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-import com.github.erf88.dao.DAO;
+import com.github.erf88.dao.AuthorDao;
+import com.github.erf88.dao.BookDao;
 import com.github.erf88.model.Book;
+import com.github.erf88.transaction.Transaction;
 
-@ManagedBean
+@Named
 @ViewScoped
-public class BookBean {
+public class BookBean implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private BookDao bookDao;
+	@Inject
+	private AuthorDao authorDao;
+	@Inject
+	private FacesContext facesContext;
+	
 	private Book book = new Book();
 	private Integer bookId;
 	private Integer authorId;
@@ -28,9 +41,8 @@ public class BookBean {
 	}
 	
 	public List<Book> getBooks() {
-		DAO<Book> dao = new DAO<Book>(Book.class);
 		if(this.books == null) {
-			this.books = dao.findAll();
+			this.books = this.bookDao.findAll();
 		}
 		return books;
 	}
@@ -52,11 +64,11 @@ public class BookBean {
 	}
 	
 	public void loadBookById() {
-		this.book = new DAO<Book>(Book.class).findById(bookId);
+		this.book = this.bookDao.findById(bookId);
 	}
 	
 	public List<Author> getAuthors() {
-		return new DAO<Author>(Author.class).findAll();
+		return this.authorDao.findAll();
 	}
 
 	public List<Author> getBookAuthors() {
@@ -64,24 +76,24 @@ public class BookBean {
 	}
 	
 	public void addAuthor() {
-		Author author = new DAO<Author>(Author.class).findById(this.authorId);
+		Author author = this.authorDao.findById(this.authorId);
 		this.book.addAuthor(author);
 	}
 	
+	@Transaction
 	public void create() {
 		System.out.println("Criando livro " + this.book.getTitle());
 
 		if (book.getAuthors().isEmpty()) {
-			FacesContext.getCurrentInstance().addMessage("autor", new FacesMessage("Livro deve ter pelo menos um Autor."));
+			facesContext.addMessage("autor", new FacesMessage("Livro deve ter pelo menos um Autor."));
 			return;
 		}
 
-		DAO<Book> dao = new DAO<Book>(Book.class);
 		if(this.book.getId() == null) {
-			dao.save(this.book);
-			this.books = dao.findAll();
+			this.bookDao.save(this.book);
+			this.books = this.bookDao.findAll();
 		} else {
-			dao.update(this.book);
+			this.bookDao.update(this.book);
 		}
 		
 		this.book = new Book();
@@ -89,13 +101,15 @@ public class BookBean {
 	
 	public void load(Book book) {
 		System.out.println("Carregando livro " + book.getTitle());
-		this.book = book;
+		loadBookById();
 	}
 	
+	@Transaction
 	public void remove(Book book) {
 		System.out.println("Removendo livro " + book.getTitle());
 		
-		new DAO<Book>(Book.class).delete(book);
+		this.bookDao.delete(book);
+		this.books = this.bookDao.findAll();
 	}
 	
 	public void removeAuthor(Author author) {

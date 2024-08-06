@@ -1,9 +1,23 @@
 package com.github.erf88.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+@Entity
 public class Sale {
 	
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@ManyToOne
 	private Book book;
 	private Integer quantity;
+	
+	public Sale() {
+	}
 	
 	public Sale(Book book, Integer quantity) {
 		this.book = book;

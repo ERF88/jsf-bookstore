@@ -1,20 +1,27 @@
 package com.github.erf88.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-import com.github.erf88.dao.DAO;
+import com.github.erf88.dao.AuthorDao;
 import com.github.erf88.model.Author;
+import com.github.erf88.transaction.Transaction;
 
-@ManagedBean
+@Named
 @ViewScoped
-public class AuthorBean {
+public class AuthorBean implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private AuthorDao dao;
 	private Author author = new Author();
 	private Integer authorId;
-
+	
 	public Author getAuthor() {
 		return author;
 	}
@@ -32,20 +39,21 @@ public class AuthorBean {
 	}
 	
 	public void loadAuthorById() {
-		this.author = new DAO<Author>(Author.class).findById(authorId);
+		this.author = this.dao.findById(authorId);
 	}
 
 	public List<Author> getAuthors() {
-		return new DAO<Author>(Author.class).findAll();
+		return this.dao.findAll();
 	}
 
+	@Transaction
 	public String create() {
 		System.out.println("Gravando autor " + this.author.getName());
 
 		if (this.author.getId() == null) {
-			new DAO<Author>(Author.class).save(this.author);
+			this.dao.save(this.author);
 		} else {
-			new DAO<Author>(Author.class).update(this.author);
+			this.dao.update(this.author);
 		}
 
 		this.author = new Author();
@@ -58,10 +66,11 @@ public class AuthorBean {
 		this.author = author;
 	}
 
+	@Transaction
 	public void remove(Author author) {
 		System.out.println("Removendo livro " + author.getName());
 
-		new DAO<Author>(Author.class).delete(author);
+		this.dao.delete(author);
 	}
 
 }

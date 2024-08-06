@@ -1,17 +1,28 @@
 package com.github.erf88.bean;
 
+import java.io.Serializable;
+
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.github.erf88.dao.UserDao;
 import com.github.erf88.model.User;
 
-@ManagedBean
+@Named
 @ViewScoped
-public class LoginBean {
+public class LoginBean implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private UserDao dao;
+	
+	@Inject
+	private FacesContext facesContext;
+	
 	private User user = new User();
 
 	public User getUser() {
@@ -21,8 +32,7 @@ public class LoginBean {
 	public String login() {
 		System.out.println("Fazendo login do usuario " + this.user.getEmail());
 
-		boolean exist = new UserDao().exists(this.user);
-		FacesContext facesContext = FacesContext.getCurrentInstance();
+		boolean exist = dao.exists(this.user);
 		if(exist) {
 			facesContext.getExternalContext().getSessionMap().put("loggedUser", this.user);
 			return "book?faces-redirect=true";
@@ -36,7 +46,6 @@ public class LoginBean {
 	
 	public String logout() {
 		System.out.println("Fazendo logout do usuario " + this.user.getEmail());
-		FacesContext facesContext = FacesContext.getCurrentInstance();
 		facesContext.getExternalContext().getSessionMap().remove("loggedUser");
 		return "login?faces-redirect=true";
 	}

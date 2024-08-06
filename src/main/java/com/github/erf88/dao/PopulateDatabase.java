@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import com.github.erf88.model.Author;
 import com.github.erf88.model.Book;
+import com.github.erf88.model.Sale;
 import com.github.erf88.model.User;
 import com.github.erf88.util.JPAUtil;
 
@@ -58,7 +59,17 @@ public class PopulateDatabase {
 
 		em.persist(capitaes);
 		em.persist(flor);
-
+		
+		Sale sale1 = generateSale(126, casmurro);
+		Sale sale2 = generateSale(257, memorias);
+		Sale sale3 = generateSale(58, quincas);
+		Sale sale4= generateSale(413, brida);
+		
+		em.persist(sale1);
+		em.persist(sale2);
+		em.persist(sale3);
+		em.persist(sale4);
+		
 		em.getTransaction().commit();
 		em.close();
 
@@ -86,8 +97,14 @@ public class PopulateDatabase {
 		book.addAuthor(author);
 		return book;
 	}
+	
+	private static Sale generateSale(int quantity, Book book) {
+		Sale sale = new Sale();
+		sale.setQuantity(quantity);
+		sale.setBook(book);
+		return sale;
+	}
 
-	@SuppressWarnings("unused")
 	private static Calendar parseDate(String data) {
 		try {
 			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(data);

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+	<interceptors>
+		<class>com.github.erf88.transaction.TransactionManagerInterceptor</class>
+		<class>com.github.erf88.log.RuntimeInterceptor</class>
+	</interceptors>
+</beans>
